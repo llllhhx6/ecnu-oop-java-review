@@ -1093,13 +1093,13 @@ java.util.<span class="typ">Random</span> r = <span class="kw">new</span> java.u
         System.out.println(<span class="str">"Instrument.play()"</span>);
     }
 }
-<span class="kw">public</span> <span class="kw">class</span> <span class="typ">Wind</span> <span class="kw">extends</span> <span class="typ">Instrument</span> {
+<span class="kw">class</span> <span class="typ">Wind</span> <span class="kw">extends</span> <span class="typ">Instrument</span> {
     <span class="kw">public</span> <span class="kw">void</span> <span class="fn">play</span>(<span class="kw">int</span> note) {
         System.out.println(<span class="str">"Wind.play()"</span>);
     }
 }
 <span class="kw">public</span> <span class="kw">class</span> <span class="typ">Music</span> {
-    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">tune</span>(<span class="typ">Instrument</span> i) { i.<span class="fn">play</span>(); }
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">tune</span>(<span class="typ">Instrument</span> i) { i.<span class="fn">play</span>(<span class="num">0</span>); }
     <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="typ">String</span>[] args) {
         <span class="typ">Wind</span> flute = <span class="kw">new</span> <span class="typ">Wind</span>();
         <span class="fn">tune</span>(flute);  <span class="cmt">// 输出 Wind.play()</span>
@@ -1393,7 +1393,7 @@ apples.<span class="fn">add</span>(<span class="kw">new</span> <span class="typ"
     <span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">void</span> <span class="fn">action</span>();
 }
 
-<span class="kw">public</span> <span class="kw">class</span> <span class="typ">Controller</span> {
+<span class="kw">class</span> <span class="typ">Controller</span> {
     <span class="kw">private</span> <span class="typ">List</span>&lt;<span class="typ">Event</span>&gt; eventList = <span class="kw">new</span> <span class="typ">ArrayList</span>&lt;<span class="typ">Event</span>&gt;();
     <span class="kw">public</span> <span class="kw">void</span> <span class="fn">addEvent</span>(<span class="typ">Event</span> c) { eventList.<span class="fn">add</span>(c); }
     <span class="kw">public</span> <span class="kw">void</span> <span class="fn">run</span>() {
@@ -1408,7 +1408,7 @@ apples.<span class="fn">add</span>(<span class="kw">new</span> <span class="typ"
 }
 
 <span class="cmt">// 使用内部类定义不同事件</span>
-<span class="kw">public</span> <span class="kw">class</span> <span class="typ">GreenhouseControls</span> <span class="kw">extends</span> <span class="typ">Controller</span> {
+<span class="kw">class</span> <span class="typ">GreenhouseControls</span> <span class="kw">extends</span> <span class="typ">Controller</span> {
     <span class="kw">private</span> <span class="kw">boolean</span> light = <span class="kw">false</span>;
     <span class="kw">public</span> <span class="kw">class</span> <span class="typ">LightOn</span> <span class="kw">extends</span> <span class="typ">Event</span> {
         <span class="kw">public</span> <span class="typ">LightOn</span>(<span class="kw">long</span> dt) { <span class="kw">super</span>(dt); }
@@ -1939,6 +1939,77 @@ System.out.println(in.<span class="fn">readUTF</span>());  <span class="cmt">// 
 <span class="typ">ArrayList</span>&lt;<span class="typ">Apple</span>&gt; apples = <span class="kw">new</span> <span class="typ">ArrayList</span>&lt;<span class="typ">Apple</span>&gt;();
 apples.<span class="fn">add</span>(<span class="kw">new</span> <span class="typ">GrannySmith</span>());  <span class="cmt">// upcasting to Apple</span>
 apples.<span class="fn">add</span>(<span class="kw">new</span> <span class="typ">Gala</span>());</div>
+
+  <h3>泛型容器的类型转换关系</h3>
+  <div class="callout warning">
+    <div class="callout-title">关键概念：Java 泛型不可协变 (Invariance)</div>
+    <p>假设 <code class="inline-code">class B extends A</code>，即使 B 是 A 的子类，<code class="inline-code">ArrayList&lt;B&gt;</code> 也<strong>不是</strong> <code class="inline-code">ArrayList&lt;A&gt;</code> 的子类型。泛型参数的父子关系不会传递进容器。</p>
+  </div>
+
+  <h4>容器原生的继承关系（与泛型参数无关）</h4>
+  <p><code class="inline-code">ArrayList&lt;E&gt;</code> 原生实现了 <code class="inline-code">List&lt;E&gt;</code> 接口，因此：</p>
+  <ul>
+    <li><code class="inline-code">ArrayList&lt;A&gt;</code> 可以向上转型为 <code class="inline-code">List&lt;A&gt;</code> ✓</li>
+    <li><code class="inline-code">ArrayList&lt;B&gt;</code> 可以向上转型为 <code class="inline-code">List&lt;B&gt;</code> ✓</li>
+  </ul>
+
+  <h4>泛型参数不产生容器间的继承关系</h4>
+  <p>以下转型<strong>全部非法</strong>（即使 B extends A）：</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>非法转换</th><th>原因</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline-code">List&lt;A&gt;</code> → <code class="inline-code">List&lt;B&gt;</code></td><td>泛型不可协变</td></tr>
+        <tr><td><code class="inline-code">List&lt;B&gt;</code> → <code class="inline-code">List&lt;A&gt;</code></td><td>泛型不可协变</td></tr>
+        <tr><td><code class="inline-code">ArrayList&lt;A&gt;</code> → <code class="inline-code">ArrayList&lt;B&gt;</code></td><td>泛型不可协变</td></tr>
+        <tr><td><code class="inline-code">ArrayList&lt;B&gt;</code> → <code class="inline-code">ArrayList&lt;A&gt;</code></td><td>泛型不可协变</td></tr>
+        <tr><td><code class="inline-code">ArrayList&lt;A&gt;</code> → <code class="inline-code">List&lt;B&gt;</code></td><td>泛型不可协变</td></tr>
+        <tr><td><code class="inline-code">ArrayList&lt;B&gt;</code> → <code class="inline-code">List&lt;A&gt;</code></td><td>泛型不可协变</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">为什么禁止？类型安全漏洞</div>
+    <p>如果允许 <code class="inline-code">List&lt;B&gt;</code> 转为 <code class="inline-code">List&lt;A&gt;</code>，会导致类型安全问题：</p>
+    <div class="code-block"><span class="cmt">// 假设允许 List&lt;B&gt; 向 List&lt;A&gt; 转型：</span>
+<span class="typ">List</span>&lt;<span class="typ">B</span>&gt; blist = <span class="kw">new</span> <span class="typ">ArrayList</span>&lt;<span class="typ">B</span>&gt;();
+<span class="typ">List</span>&lt;<span class="typ">A</span>&gt; alist = blist;  <span class="cmt">// 假设允许（实际编译报错）</span>
+alist.<span class="fn">add</span>(<span class="kw">new</span> <span class="typ">A</span>());  <span class="cmt">// 原本只能放 B 的容器里混入了 A</span>
+<span class="typ">B</span> item = blist.<span class="fn">get</span>(<span class="num">0</span>);  <span class="cmt">// 运行时 ClassCastException！</span></div>
+    <p>Java 为了防止这种隐患，直接禁止泛型参数的父子关系传递进容器。</p>
+  </div>
+
+  <h4>唯一合法的两组多态关系</h4>
+  <ul>
+    <li><code class="inline-code">ArrayList&lt;A&gt;</code> → <code class="inline-code">List&lt;A&gt;</code> ✓（接口实现向上转型）</li>
+    <li><code class="inline-code">ArrayList&lt;B&gt;</code> → <code class="inline-code">List&lt;B&gt;</code> ✓（接口实现向上转型）</li>
+  </ul>
+
+  <h3>通配符 — 实现参数层面的灵活适配</h3>
+  <p>如果需要让容器的泛型参数也能灵活适配，可以使用<strong>边界通配符</strong>：</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>通配符</th><th>可接收类型</th><th>适用场景</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline-code">List&lt;? extends A&gt;</code></td><td><code class="inline-code">List&lt;B&gt;</code>（B extends A）</td><td>只读为主，不能随便添加元素</td></tr>
+        <tr><td><code class="inline-code">List&lt;? super B&gt;</code></td><td><code class="inline-code">List&lt;A&gt;</code>（A 是 B 的父类）</td><td>适合写入元素</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>类型转换关系总结</h4>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>源类型</th><th>→ List&lt;同类型&gt;</th><th>→ List&lt;父类型&gt;</th><th>→ ArrayList&lt;其他类型&gt;</th></tr></thead>
+      <tbody>
+        <tr><td><code class="inline-code">ArrayList&lt;A&gt;</code></td><td>✓</td><td>✗</td><td>✗</td></tr>
+        <tr><td><code class="inline-code">ArrayList&lt;B&gt;</code></td><td>✓</td><td>✗</td><td>✗</td></tr>
+        <tr><td><code class="inline-code">List&lt;A&gt;</code></td><td>—</td><td>✗</td><td>✗</td></tr>
+        <tr><td><code class="inline-code">List&lt;B&gt;</code></td><td>—</td><td>✗</td><td>✗</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
 <!-- ==================== 15 编程题预设算法 ==================== -->
@@ -2544,6 +2615,594 @@ hi</div>
           <tr><td>09</td><td>构造函数识别</td><td>void MyType() 不是构造函数</td></tr>
           <tr><td>10</td><td>Integer 缓存</td><td>-128~127 缓存，Double 无缓存</td></tr>
           <tr><td>11</td><td>静态方法调用</td><td>null 引用调用静态方法不报错</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 18 作业题目精选 ==================== -->
+<section class="chapter" id="homework">
+  <h2><span class="chapter-num">18</span>作业题目精选</h2>
+  <div class="lecture-ref">来源：课程作业 Project 1-8（已排除 AI/vibe-coding 部分）</div>
+
+  <div class="callout">
+    <div class="callout-title">说明</div>
+    <p>以下题目精选自课程 8 个作业项目，选取与考试复习相关的问答题和编程题。涉及 AI 编程、vibe-coding 的部分已排除。</p>
+  </div>
+
+  <h3>Java 基础语法与编译（Project 1-2）</h3>
+
+  <h4>问答题</h4>
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q01</span>
+      <span class="quiz-topic">main 函数关键字删除</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">分别删除 HelloWorld.java 中 main 函数的 public、static、void、args、String，各会发生什么？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li>删除 <code class="inline-code">public</code>：能编译，但运行时 JVM 报错 "Main method not public"</li>
+            <li>删除 <code class="inline-code">static</code>：能编译，但运行时报错 "Main method is not static"</li>
+            <li>删除 <code class="inline-code">void</code>：<strong>编译错误</strong>，方法缺少返回值类型</li>
+            <li>删除 <code class="inline-code">args</code>：<strong>编译错误</strong>，参数名缺失</li>
+            <li>删除 <code class="inline-code">String</code>：<strong>编译错误</strong>，参数类型缺失</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>main 函数签名 <code class="inline-code">public static void main(String[] args)</code> 中每个关键字的含义；JVM 对 main 方法的要求。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q02</span>
+      <span class="quiz-topic">文件名与 public 类名</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">将 HelloWorld.java 重命名为 HalloWorld.java 会发生什么？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <p><strong>编译错误</strong>。Java 规定一个 .java 文件中只能有一个 public 类，且文件名必须与 public 类名完全一致。文件名为 HalloWorld.java 但类名是 HelloWorld，两者不匹配，编译器报错。</p>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>.java 文件名必须与 public 类名一致；一个 .java 文件只能有一个 public 类。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q03</span>
+      <span class="quiz-topic">表达式类型与编译判断</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">以下表达式是否能通过编译？如果能，类型和值是什么？</div>
+      <div class="code-block"><span class="num">1</span> == <span class="typ">True</span>
+<span class="num">1</span> == <span class="kw">true</span>
+<span class="num">0</span> == <span class="kw">false</span>
+<span class="num">2</span> + <span class="str">"ab"</span>
+<span class="num">2</span> + <span class="str">'a'</span>
+<span class="num">2</span> * <span class="str">"ab"</span>
+<span class="num">2</span> * <span class="str">'a'</span>
+<span class="num">1</span> + <span class="num">1.0</span>
+<span class="num">1</span>/<span class="num">3</span>
+<span class="num">1.0</span>/<span class="num">3</span></div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li><code class="inline-code">1 == True</code>：<strong>编译错误</strong>，True 不是合法关键字（Java 区分大小写，应为 true）</li>
+            <li><code class="inline-code">1 == true</code>：<strong>编译错误</strong>，int 不能与 boolean 比较</li>
+            <li><code class="inline-code">0 == false</code>：<strong>编译错误</strong>，同上</li>
+            <li><code class="inline-code">2 + "ab"</code>：编译通过，值为 <code class="inline-code">"2ab"</code>（String），int 自动转为 String</li>
+            <li><code class="inline-code">2 + 'a'</code>：编译通过，值为 <code class="inline-code">99</code>（int），char 提升为 int 参与运算</li>
+            <li><code class="inline-code">2 * "ab"</code>：<strong>编译错误</strong>，String 不能做乘法</li>
+            <li><code class="inline-code">2 * 'a'</code>：编译通过，值为 <code class="inline-code">194</code>（int），char 提升为 int</li>
+            <li><code class="inline-code">1 + 1.0</code>：编译通过，值为 <code class="inline-code">2.0</code>（double），int 提升为 double</li>
+            <li><code class="inline-code">1/3</code>：编译通过，值为 <code class="inline-code">0</code>（int），整数除法截断</li>
+            <li><code class="inline-code">1.0/3</code>：编译通过，值为 <code class="inline-code">0.3333...</code>（double）</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>Java 是强类型语言；boolean 与 int 不可互转；char 可提升为 int（Unicode 值）；String 与 + 运算符重载为拼接；整数除法 vs 浮点除法。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q04</span>
+      <span class="quiz-topic">整数溢出与浮点精度</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">设 int a = 2147483647 (Integer.MAX_VALUE)，以下输出什么？Math.sqrt(2)*Math.sqrt(2) == 2 的值是什么？</div>
+      <div class="code-block">System.out.println(a);        <span class="cmt">// 2147483647</span>
+System.out.println(a + <span class="num">1</span>);     <span class="cmt">// 溢出！</span>
+System.out.println(<span class="num">2</span> - a);       <span class="cmt">// 溢出！</span>
+System.out.println(-<span class="num">2</span> - a);      <span class="cmt">// 溢出！</span>
+System.out.println(<span class="num">2</span> * a);       <span class="cmt">// 溢出！</span></div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li><code class="inline-code">a</code> → 2147483647</li>
+            <li><code class="inline-code">a + 1</code> → -2147483648（溢出回绕到最小值）</li>
+            <li><code class="inline-code">2 - a</code> → -2147483645（溢出）</li>
+            <li><code class="inline-code">-2 - a</code> → 2147483647（溢出回绕）</li>
+            <li><code class="inline-code">2 * a</code> → -2（溢出）</li>
+            <li><code class="inline-code">Math.sqrt(2)*Math.sqrt(2) == 2</code> → <strong>false</strong>，浮点运算存在精度误差，结果约为 2.0000000000000004</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>int 溢出不会报错而是回绕；Integer.MAX_VALUE = 2^31 - 1；浮点数存在精度误差，不能直接用 == 比较浮点运算结果。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q05</span>
+      <span class="quiz-topic">数组引用比较</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">以下程序输出什么？</div>
+      <div class="code-block"><span class="kw">int</span>[] a = { <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span> };
+<span class="kw">int</span>[] b = { <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span> };
+System.out.println(a == b);</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <p>输出 <code class="inline-code">false</code>。<code class="inline-code">==</code> 比较的是引用（内存地址），a 和 b 是两个不同的数组对象，虽然内容相同但地址不同。应使用 <code class="inline-code">Arrays.equals(a, b)</code> 比较内容。</p>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>== 比较引用地址；数组是对象；内容比较需用 Arrays.equals()。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>类的创建与封装（Project 5）</h3>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q06</span>
+      <span class="quiz-topic">不可变类设计 — Vector</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">设计一个不可变 (immutable) 的二维向量类 VectorCart，包含加法、减法、数乘、点积、叉积、模长等方法。思考：在 API 中加入 setX(double x) 方法是否合适？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">分析</div>
+        <div class="quiz-explanation">
+          <p><strong>不合适</strong>。不可变类意味着对象创建后状态不能改变。setX() 会修改内部状态，与 immutable 设计冲突。不可变类的优点：线程安全、可作为 HashMap 的 key、易于缓存。所有修改操作应返回新对象，如 <code class="inline-code">add(v)</code> 返回新的 VectorCart 而非修改 this。</p>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>不可变类设计原则；String、Integer 都是不可变类；修改操作返回新对象；final 关键字保护数据成员。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q07</span>
+      <span class="quiz-topic">API 设计思考题</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">在 VectorCart 类中：去掉 subtract 方法是否合适？去掉 getX()/getY() 是否合适？以下两种用法哪种更好？</div>
+      <div class="code-block"><span class="cmt">// 用法 A</span>
+<span class="kw">double</span> x = a.<span class="fn">getX</span>() + b.<span class="fn">getX</span>();
+<span class="kw">double</span> y = a.<span class="fn">getY</span>() + b.<span class="fn">getY</span>();
+<span class="typ">VectorCart</span> c = <span class="kw">new</span> <span class="typ">VectorCart</span>(x, y);
+
+<span class="cmt">// 用法 B</span>
+<span class="typ">VectorCart</span> c = a.<span class="fn">add</span>(b);</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">分析</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li>去掉 <code class="inline-code">subtract</code>：可以由 <code class="inline-code">add(v.scale(-1))</code> 实现，但可读性降低。保留更清晰。</li>
+            <li>去掉 <code class="inline-code">getX()/getY()</code>：直接暴露字段破坏封装，但完全不给访问也不实际。保留 getter 是合理的封装。</li>
+            <li><strong>用法 B 更好</strong>：面向对象编程强调通过对象的方法（行为）来操作，而非直接操作内部数据。用法 A 把对象拆解为基本类型再重组，失去了 OOP 的意义。</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>封装原则；API 设计的简洁性与可读性；面向对象 vs 面向过程的使用方式。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>继承与组合（Project 6）</h3>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q08</span>
+      <span class="quiz-topic">访问控制实验</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">Name 类数据成员为 private，在 Name 类的 main 函数中能否访问 Name 对象的数据成员？在 Person 类的 chatWith 方法中能否直接访问 name 对象的数据成员？如果 Name 数据成员改为 package access 呢？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li><strong>Name 类的 main 中</strong>：可以访问。private 成员在同一个类内可访问，main 也在 Name 类中。</li>
+            <li><strong>Person 类中</strong>：<strong>不能</strong>直接访问 name 对象的 private 数据成员，必须通过 getter/setter。</li>
+            <li><strong>改为 package access</strong>：如果 Person 和 Name 在同一个包中，Person 可以直接访问。如果在不同包中，仍然不能访问。</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>private 仅同类可访问；package access 同包可访问；protected 同包+子类可访问；public 全部可访问。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q09</span>
+      <span class="quiz-topic">动态绑定验证</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">创建 Person[] 数组，放入 Student、Teacher、Person 对象，遍历调用 talk()，输出是否不同？再测试 Person p = new Student(...); p.talk(); p.talk("Math"); 输出差异是什么？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li>遍历调用 <code class="inline-code">talk()</code>：虽然变量类型都是 Person，但<strong>动态绑定</strong>到实际对象类型的方法。Student 输出 "Hi, how is your homework going?"，Teacher 输出 "Hi, how is your paper going?"，Person 输出 "Hi, how is it going?"。</li>
+            <li><code class="inline-code">p.talk()</code>：调用 Student 重写的 talk()，输出 Student 的内容。</li>
+            <li><code class="inline-code">p.talk("Math")</code>：如果 Student <strong>没有重写</strong>带参数的 talk(String)，则调用 Person 的版本。因为<strong>重写只发生在完全相同的方法签名上</strong>，talk() 和 talk(String) 是两个不同的方法。</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>动态绑定只对重写的方法生效；重写要求方法签名完全一致（方法名+参数列表）；talk() 和 talk(String) 是重载不是重写。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q10</span>
+      <span class="quiz-topic">final 方法与抽象类</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">在 Person 中定义 final void breathe()，在 Student 中尝试重写会怎样？将 Person 改为抽象类并定义抽象方法 work()，尝试 new Person() 会怎样？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li><strong>final 方法</strong>：在 Student 中重写 breathe() 会<strong>编译错误</strong>。final 方法禁止子类重写。</li>
+            <li><strong>抽象类</strong>：<code class="inline-code">new Person()</code> 会<strong>编译错误</strong>，抽象类不能实例化。Student 和 Teacher 必须实现 work() 抽象方法，否则它们自己也必须声明为 abstract。</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>final 方法不可重写；abstract 类不可实例化；子类必须实现所有抽象方法，否则子类也是抽象类。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q11</span>
+      <span class="quiz-topic">协变返回值实验</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">Person 中定义 public Person getPartner()，在 Student 中分别用以下返回类型重写，哪些能编译通过？</div>
+      <div class="code-block"><span class="kw">public</span> <span class="typ">Person</span> <span class="fn">getPartner</span>() { ... }      <span class="cmt">// 1. 完全一致</span>
+<span class="kw">public</span> <span class="typ">Student</span> <span class="fn">getPartner</span>() { ... }     <span class="cmt">// 2. 返回 Student</span>
+<span class="kw">public</span> <span class="typ">Object</span> <span class="fn">getPartner</span>() { ... }     <span class="cmt">// 3. 返回 Object</span>
+<span class="kw">public</span> <span class="kw">int</span> <span class="fn">getPartner</span>() { ... }          <span class="cmt">// 4. 返回 int</span></div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li><code class="inline-code">Person getPartner()</code>：✓ 编译通过，返回类型完全一致</li>
+            <li><code class="inline-code">Student getPartner()</code>：✓ 编译通过，<strong>协变返回值</strong>，Student 是 Person 的子类</li>
+            <li><code class="inline-code">Object getPartner()</code>：<strong>✗ 编译错误</strong>，Object 是 Person 的父类，不是协变</li>
+            <li><code class="inline-code">int getPartner()</code>：<strong>✗ 编译错误</strong>，基本类型与引用类型不兼容</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>协变返回值 — 重写方法的返回类型可以是父类方法返回类型的子类；基本类型不适用协变。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q12</span>
+      <span class="quiz-topic">组合 vs 继承</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">在 Person 中添加 Role 成员（组合关系），相比让 Student 继承 Role，有什么优点？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">分析</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li><strong>组合更灵活</strong>：运行时可以动态替换 Role 对象，继承在编译时就固定了</li>
+            <li><strong>避免继承层次过深</strong>：如果一个人既是 Student 又是 Teacher，继承只能选一个，组合可以同时持有多个 Role</li>
+            <li><strong>符合 "has-a" vs "is-a"</strong>：人"有"角色，而不是人"是"角色</li>
+            <li><strong>扩展性</strong>：新增角色类型只需新增 Role 子类，无需修改 Person 类</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>组合 vs 继承的选择原则；"优先使用组合"设计原则；has-a vs is-a 关系。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>接口与抽象类（Project 7）</h3>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q13</span>
+      <span class="quiz-topic">抽象类与多接口实现</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">设计农场系统：抽象类 FarmAsset（含抽象方法 getCurrentValue()），接口 IMaintainable 和 IHarvestable。奶牛 DairyCow 需要继承 FarmAsset 并实现两个接口。如何用统一代码遍历仓库中所有资产并自动执行维护和收获？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">分析</div>
+        <div class="quiz-explanation">
+          <p>仓库存储为 <code class="inline-code">List&lt;FarmAsset&gt;</code>。遍历时：</p>
+          <div class="code-block"><span class="kw">for</span> (<span class="typ">FarmAsset</span> asset : assets) {
+    <span class="kw">if</span> (asset <span class="kw">instanceof</span> <span class="typ">IMaintainable</span>) {
+        <span class="typ">IMaintainable</span> m = (<span class="typ">IMaintainable</span>) asset;
+        m.<span class="fn">performMaintenance</span>();
+    }
+    <span class="kw">if</span> (asset <span class="kw">instanceof</span> <span class="typ">IHarvestable</span>) {
+        <span class="typ">IHarvestable</span> h = (<span class="typ">IHarvestable</span>) asset;
+        <span class="kw">if</span> (h.<span class="fn">isHarvestable</span>()) h.<span class="fn">harvest</span>();
+    }
+}</div>
+          <p>利用 <code class="inline-code">instanceof</code> 和接口类型转换，可以安全地调用对象具备的"能力"，体现了接口的多态性。</p>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>抽象类定义"是什么"，接口定义"能做什么"；一个类可实现多个接口；instanceof 判断接口类型；接口类型的向下转型。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q14</span>
+      <span class="quiz-topic">接口扩展与多态</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">定义接口 Function（含 eval 方法），DifferentiableFunction 扩展 Function（增加 diff 方法）。NewtonRoot.findRoot(DifferentiableFunction f) 接收不同函数（Linear、Sin、Quadratic）求根。这体现了什么 OOP 特性？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">分析</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li><strong>接口扩展</strong>：DifferentiableFunction extends Function，继承接口方法并添加新方法</li>
+            <li><strong>多态</strong>：findRoot 接收 DifferentiableFunction 类型，传入 Linear/Sin/Quadratic 时自动 upcasting</li>
+            <li><strong>动态绑定</strong>：findRoot 内部调用 f.eval() 和 f.diff() 时，根据实际对象类型调用对应实现</li>
+            <li><strong>开闭原则</strong>：新增函数类型只需实现 DifferentiableFunction 接口，无需修改 NewtonRoot</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>接口继承（extends）；upcasting 到接口类型；动态绑定到接口实现；接口作为参数类型实现多态。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q15</span>
+      <span class="quiz-topic">迭代器与内部类</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">用内部类实现 Sequence 接口的 iterator() 方法。思考：为什么不直接在 Sequence 接口里定义 next()，而是返回一个 Iterator 对象？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">分析</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li><strong>多遍历支持</strong>：如果 next() 在 Sequence 内部，同一时刻只能有一个遍历位置。返回独立 Iterator 对象可以让多个遍历同时进行。</li>
+            <li><strong>状态隔离</strong>：每个 Iterator 维护自己的遍历位置（cursor），互不干扰。</li>
+            <li><strong>内部类优势</strong>：内部类可以访问外部类的 private 成员（如数组），同时对外隐藏实现细节。</li>
+            <li><strong>统一接口</strong>：无论底层是数组还是链表，都通过相同的 Iterator 接口遍历，算法与数据结构解耦。</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>迭代器模式；内部类访问外部类私有成员；接口隔离遍历状态；多态遍历不同数据结构。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>容器与 I/O（Project 8）</h3>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q16</span>
+      <span class="quiz-topic">容器选择与使用</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">给定文本文件：①将所有单词读入 List；②统计不同单词数；③统计不同单词出现次数。各应使用什么容器？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">答案</div>
+        <div class="quiz-explanation">
+          <ul>
+            <li>① <strong>ArrayList</strong>：有序存储所有单词，允许重复</li>
+            <li>② <strong>HashSet</strong>：自动去重，<code class="inline-code">set.size()</code> 即不同单词数</li>
+            <li>③ <strong>HashMap&lt;String, Integer&gt;</strong>：key 为单词，value 为出现次数。遍历时 <code class="inline-code">map.put(word, map.getOrDefault(word, 0) + 1)</code></li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>List 有序可重复；Set 无重复；Map key-value 映射；根据需求选择合适容器。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q17</span>
+      <span class="quiz-topic">稀疏矩阵与容器选择</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">实现稀疏矩阵类 SparseMatrix（大量 0 元素的矩阵），应选择什么容器？如何实现加法和乘法？</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">分析</div>
+        <div class="quiz-explanation">
+          <p>使用 <code class="inline-code">HashMap&lt;String, Double&gt;</code>，key 为 "row,col" 格式的字符串，value 为非零元素值。0 元素不存储。</p>
+          <ul>
+            <li><strong>加法</strong>：遍历两个矩阵的非零元素，相同位置的值相加，结果为 0 的删除</li>
+            <li><strong>乘法</strong>：C[i][j] = Σ A[i][k] * B[k][j]，只需遍历 A 和 B 中的非零元素</li>
+            <li><strong>优点</strong>：节省大量空间；HashMap 查找 O(1)</li>
+          </ul>
+        </div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>容器选择策略；HashMap 的灵活应用；空间效率与时间效率的权衡。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>编程题练习（Project 2, 6, 7）</h3>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q18</span>
+      <span class="quiz-topic">命令行参数与字符串处理</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">编写程序 Hi.java，接收命令行参数并输出。执行 java Hi Alice Bob Carol 时输出 "Hi Carol, Bob, Alice."（倒序输出参数）。</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">参考答案</div>
+        <div class="code-block"><span class="kw">public</span> <span class="kw">class</span> <span class="typ">Hi</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">void</span> <span class="fn">main</span>(<span class="typ">String</span>[] args) {
+        System.out.<span class="fn">print</span>(<span class="str">"Hi "</span>);
+        <span class="kw">for</span> (<span class="kw">int</span> i = args.length - <span class="num">1</span>; i &gt;= <span class="num">0</span>; i--) {
+            System.out.<span class="fn">print</span>(args[i]);
+            <span class="kw">if</span> (i &gt; <span class="num">0</span>) System.out.<span class="fn">print</span>(<span class="str">", "</span>);
+        }
+        System.out.println(<span class="str">"."</span>);
+    }
+}</div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>命令行参数 args 数组；数组遍历与倒序；字符串拼接。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q19</span>
+      <span class="quiz-topic">组合模式实现任务树</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">用组合模式实现任务调度系统：抽象类 Task（含 getDuration()），子类 AtomicTask（原子任务）、SerialTask（串行）、ParallelTask（并行）。串行总时间 = 左+右，并行总时间 = max(左,右)。</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">参考答案</div>
+        <div class="code-block"><span class="kw">abstract</span> <span class="kw">class</span> <span class="typ">Task</span> {
+    <span class="kw">public</span> <span class="kw">abstract</span> <span class="kw">int</span> <span class="fn">getDuration</span>();
+}
+
+<span class="kw">class</span> <span class="typ">AtomicTask</span> <span class="kw">extends</span> <span class="typ">Task</span> {
+    <span class="kw">private</span> <span class="kw">int</span> time;
+    <span class="kw">public</span> <span class="typ">AtomicTask</span>(<span class="kw">int</span> t) { time = t; }
+    <span class="kw">public</span> <span class="kw">int</span> <span class="fn">getDuration</span>() { <span class="kw">return</span> time; }
+}
+
+<span class="kw">abstract</span> <span class="kw">class</span> <span class="typ">CompositeTask</span> <span class="kw">extends</span> <span class="typ">Task</span> {
+    <span class="kw">protected</span> <span class="typ">Task</span> left, right;
+    <span class="kw">public</span> <span class="typ">CompositeTask</span>(<span class="typ">Task</span> l, <span class="typ">Task</span> r) { left = l; right = r; }
+}
+
+<span class="kw">class</span> <span class="typ">SerialTask</span> <span class="kw">extends</span> <span class="typ">CompositeTask</span> {
+    <span class="kw">public</span> <span class="typ">SerialTask</span>(<span class="typ">Task</span> l, <span class="typ">Task</span> r) { <span class="kw">super</span>(l, r); }
+    <span class="kw">public</span> <span class="kw">int</span> <span class="fn">getDuration</span>() {
+        <span class="kw">return</span> left.<span class="fn">getDuration</span>() + right.<span class="fn">getDuration</span>();
+    }
+}
+
+<span class="kw">class</span> <span class="typ">ParallelTask</span> <span class="kw">extends</span> <span class="typ">CompositeTask</span> {
+    <span class="kw">public</span> <span class="typ">ParallelTask</span>(<span class="typ">Task</span> l, <span class="typ">Task</span> r) { <span class="kw">super</span>(l, r); }
+    <span class="kw">public</span> <span class="kw">int</span> <span class="fn">getDuration</span>() {
+        <span class="kw">return</span> <span class="typ">Math</span>.<span class="fn">max</span>(left.<span class="fn">getDuration</span>(), right.<span class="fn">getDuration</span>());
+    }
+}</div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>组合模式（Composite Pattern）；抽象类与子类继承；递归调用 getDuration()；super 调用父类构造函数。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <span class="quiz-num">Q20</span>
+      <span class="quiz-topic">牛顿法求根 — 接口与多态</span>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-question">定义 DifferentiableFunction 接口（eval + diff），实现 NewtonRoot.findRoot(DifferentiableFunction f) 用牛顿法求根。</div>
+      <div class="quiz-answer correct">
+        <div class="answer-label">参考答案</div>
+        <div class="code-block"><span class="kw">interface</span> <span class="typ">DifferentiableFunction</span> {
+    <span class="kw">double</span> <span class="fn">eval</span>(<span class="kw">double</span> x);
+    <span class="kw">double</span> <span class="fn">diff</span>(<span class="kw">double</span> x);
+}
+
+<span class="kw">class</span> <span class="typ">NewtonRoot</span> {
+    <span class="kw">public</span> <span class="kw">static</span> <span class="kw">double</span> <span class="fn">findRoot</span>(<span class="typ">DifferentiableFunction</span> f) {
+        <span class="kw">double</span> x = <span class="num">1.0</span>;  <span class="cmt">// 初始值</span>
+        <span class="kw">double</span> epsilon = <span class="num">1e-10</span>;
+        <span class="kw">while</span> (<span class="typ">Math</span>.<span class="fn">abs</span>(f.<span class="fn">eval</span>(x)) &gt; epsilon) {
+            x = x - f.<span class="fn">eval</span>(x) / f.<span class="fn">diff</span>(x);
+        }
+        <span class="kw">return</span> x;
+    }
+}
+
+<span class="cmt">// 使用示例：求 x^2 - 4 = 0 的根（即 sqrt(4) = 2）</span>
+<span class="kw">class</span> <span class="typ">Quadratic</span> <span class="kw">implements</span> <span class="typ">DifferentiableFunction</span> {
+    <span class="kw">private</span> <span class="kw">double</span> a, b, c;
+    <span class="kw">public</span> <span class="typ">Quadratic</span>(<span class="kw">double</span> a, <span class="kw">double</span> b, <span class="kw">double</span> c) {
+        <span class="kw">this</span>.a = a; <span class="kw">this</span>.b = b; <span class="kw">this</span>.c = c;
+    }
+    <span class="kw">public</span> <span class="kw">double</span> <span class="fn">eval</span>(<span class="kw">double</span> x) { <span class="kw">return</span> a*x*x + b*x + c; }
+    <span class="kw">public</span> <span class="kw">double</span> <span class="fn">diff</span>(<span class="kw">double</span> x) { <span class="kw">return</span> <span class="num">2</span>*a*x + b; }
+}
+
+<span class="cmt">// 调用</span>
+<span class="typ">DifferentiableFunction</span> f = <span class="kw">new</span> <span class="typ">Quadratic</span>(<span class="num">1</span>, <span class="num">0</span>, -<span class="num">4</span>);
+<span class="kw">double</span> root = <span class="typ">NewtonRoot</span>.<span class="fn">findRoot</span>(f);  <span class="cmt">// ≈ 2.0</span></div>
+        <div class="quiz-knowledge">
+          <strong>知识点：</strong>接口定义与实现；接口作为方法参数类型（多态）；动态绑定调用 eval() 和 diff()；upcasting 到接口类型。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <div class="callout-title">作业题目与考试重点对照</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>作业题目</th><th>对应考试章节</th><th>核心考点</th></tr></thead>
+        <tbody>
+          <tr><td>Q01-Q02</td><td>04 类 / 05 包</td><td>main 函数签名、public 类与文件名</td></tr>
+          <tr><td>Q03-Q05</td><td>02 类型 / 03 控制结构</td><td>类型转换、溢出、== vs equals</td></tr>
+          <tr><td>Q06-Q07</td><td>04 类 / 06 访问控制</td><td>不可变类、封装、API 设计</td></tr>
+          <tr><td>Q08-Q12</td><td>07 复用 / 08 多态</td><td>访问控制、动态绑定、final、协变返回值、组合 vs 继承</td></tr>
+          <tr><td>Q13-Q15</td><td>09 接口 / 10 内部类</td><td>抽象类、多接口、instanceof、迭代器模式</td></tr>
+          <tr><td>Q16-Q17</td><td>11 容器</td><td>List/Set/Map 选择、HashMap 应用</td></tr>
+          <tr><td>Q18-Q20</td><td>编程题</td><td>命令行参数、组合模式、接口多态</td></tr>
         </tbody>
       </table>
     </div>
